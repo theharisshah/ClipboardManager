@@ -8,6 +8,8 @@
 	<string>Clipboard Manager</string>
 	<key>CFBundleExecutable</key>
 	<string>ClipboardManager</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.theharisshah.ClipboardManager</string>
 	<key>CFBundleInfoDictionaryVersion</key>
