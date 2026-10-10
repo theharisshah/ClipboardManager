@@ -1,6 +1,20 @@
 # ClipboardManager
 
+[![macOS 12+](https://img.shields.io/badge/macOS-12%2B-000000?logo=apple&logoColor=white)](#requirements)
+[![Swift 5.5+](https://img.shields.io/badge/Swift-5.5%2B-F05138?logo=swift&logoColor=white)](https://swift.org)
+[![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-0A84FF?logo=swift&logoColor=white)](https://developer.apple.com/xcode/swiftui/)
+[![Menu bar app](https://img.shields.io/badge/menu%20bar-app-8E8E93)](#usage)
+[![Tests: Swift Testing](https://img.shields.io/badge/tests-Swift%20Testing-34C759)](#running-tests)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 A lightweight macOS menu-bar app that keeps track of your clipboard history, similar to PastPal. Everything you copy is saved so you can search it and paste it again later, without leaving the keyboard.
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/popover-dark.png">
+  <img src="docs/screenshots/popover-light.png" alt="The Clipboard Manager popover: a search field above a list of copied items labeled Link, Text, Code, JSON, Email and Number" width="420">
+</picture>
+</p>
 
 ## Features
 
@@ -11,6 +25,38 @@ A lightweight macOS menu-bar app that keeps track of your clipboard history, sim
 - Copying an item takes you straight back to the app you were in, ready for ⌘V
 - Skips passwords and other concealed items from password managers
 - Lives in the menu bar only, with no Dock icon
+
+## Screenshots
+
+<table>
+  <tr>
+    <th>Search as you type</th>
+    <th>Keyboard navigation</th>
+    <th>Empty history</th>
+  </tr>
+  <tr>
+    <td>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/search-dark.png">
+        <img src="docs/screenshots/search-light.png" alt="Searching for swift narrows the list to two matching items" width="260">
+      </picture>
+    </td>
+    <td>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/keyboard-dark.png">
+        <img src="docs/screenshots/keyboard-light.png" alt="The arrow keys move the highlight to a code snippet" width="260">
+      </picture>
+    </td>
+    <td>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/empty-dark.png">
+        <img src="docs/screenshots/empty-light.png" alt="The empty state explains that copied text will appear here" width="260">
+      </picture>
+    </td>
+  </tr>
+</table>
+
+Screenshots follow your system appearance (light or dark).
 
 ## Requirements
 
@@ -104,6 +150,7 @@ ClipboardManager/
 ├── HotkeyManager.swift        # Global hotkey (⇧⌘V)
 └── Info.plist                 # Bundle metadata used by build.sh
 Tests/                         # Unit tests (Swift Testing)
+docs/screenshots/              # README screenshots
 build.sh                       # Builds dist/ClipboardManager.app
 test.sh                        # Runs the tests
 ```
