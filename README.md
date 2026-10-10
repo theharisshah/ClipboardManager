@@ -1,75 +1,112 @@
 # ClipboardManager
 
-A macOS application that helps you keep track of your clipboard history, similar to PastPal. ClipboardManager runs in the menu bar and allows you to access your previously copied items for later use.
+A lightweight macOS menu-bar app that keeps track of your clipboard history, similar to PastPal. Everything you copy is saved so you can search it and paste it again later, without leaving the keyboard.
 
 ## Features
 
-- Monitors clipboard changes automatically
-- Stores clipboard history with timestamps
-- Allows searching through clipboard history
-- Copy any previous item back to the clipboard with a single click
-- Delete individual items or clear entire history
-- Persists clipboard history between app launches
-- Menu bar application for easy access
+- Automatic clipboard history that's saved between launches
+- Opens from the menu bar or with a global shortcut (⇧⌘V)
+- Search as you type, with full keyboard navigation
+- Items labeled by type: Text, Link, Email, Number, Code, JSON
+- Copying an item takes you straight back to the app you were in, ready for ⌘V
+- Skips passwords and other concealed items from password managers
+- Lives in the menu bar only, with no Dock icon
 
 ## Requirements
 
-- macOS 11.0 (Big Sur) or later
-- Xcode 13.0 or later (for building from source)
-- Swift 5.5 or later
+- macOS 12 Monterey or later
+- Command Line Tools (Swift 5.5+) to build; full Xcode isn't needed
+- Running the tests needs a macOS 14+ host (they use Swift Testing). `./test.sh` handles setups that only have the Command Line Tools.
 
-## Building from Source
+## Building & Running
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/ClipboardManager.git
-   cd ClipboardManager
-   ```
+```bash
+git clone https://github.com/theharisshah/ClipboardManager.git
+cd ClipboardManager
+./build.sh
+```
 
-2. Build using Swift Package Manager:
-   ```
-   swift build
-   ```
+This builds a release binary and packages it as `dist/ClipboardManager.app`. Then:
 
-3. Run the application:
-   ```
-   swift run
-   ```
+- Run it: `open dist/ClipboardManager.app`
+- Install it: drag `dist/ClipboardManager.app` into `/Applications`
 
-4. For a release build:
-   ```
-   swift build -c release
-   ```
+Other options:
 
-5. The built application will be in `.build/release/ClipboardManager`
+- `swift run` builds and runs a debug build, which is handy during development
+- `./build.sh --clean` cleans first, then builds from scratch
 
 ## Usage
 
-1. Launch the application. It will appear as a clipboard icon in the menu bar.
+Clipboard Manager lives in the menu bar (no Dock icon).
 
-2. Click on the menu bar icon to:
-   - Open the clipboard history window
-   - Quit the application
+- **Left-click** the menu bar icon, or press **⇧⌘V** anywhere, to open the history popover.
+- **Right-click** (or Control-click) the icon for the menu: **Open Clipboard History**, **Clear All History…** (asks for confirmation), **About**, and **Quit**.
 
-3. In the clipboard history window:
-   - Click on any item to copy it to the clipboard
-   - Use the search bar to filter items
-   - Right-click on an item for additional options (copy, delete)
-   - Click "Clear All" to remove all items from history
+### In the popover
 
-4. The application automatically monitors your clipboard and adds new items to the history.
+The search field has focus as soon as the popover opens, so you can just start typing to filter.
+
+| Key | Action |
+| --- | --- |
+| ↑ / ↓ (or ⌃P / ⌃N) | Move the highlight |
+| Return (or click) | Copy the item, close the popover and return to the app you were in, so you can paste with ⌘V right away |
+| ⌘1 – ⌘9 | Copy one of the first nine visible items |
+| ⌘⌫ | Delete the highlighted item (when the search field is empty) |
+| Esc | Clear the search, then close the popover |
+
+- Right-click an item for **Copy** / **Delete**.
+- The **⋯** menu in the footer has **Clear History…** (with an inline confirmation) and **Quit**.
+- Items are labeled by type (Text, Link, Email, Number, Code, JSON). Code and JSON previews use a monospaced font.
+
+> **Note:** ⇧⌘V is registered globally, so while Clipboard Manager is running it overrides "Paste and Match Style" in other apps.
 
 ## How It Works
 
-ClipboardManager uses a timer to check the system clipboard for changes every second. When a change is detected, the new content is added to the history. The history is stored using UserDefaults for persistence between app launches.
+- The pasteboard's change count is checked every 0.5 seconds, including while menus or alerts are open.
+- Only plain text is stored, so rich text formatting isn't kept.
+- Copying an older item moves it to the top instead of adding a duplicate.
+- The newest 100 items are kept. Items longer than 10,000 characters are skipped.
+
+## Privacy & Data
+
+- History is stored **in plain text** in the app's preferences (UserDefaults key `ClipboardManagerItems`). The domain is the bundle id `com.theharisshah.ClipboardManager` for the `.app`, or `ClipboardManager` when run via `swift run`. On first launch, the `.app` migrates any history from the old domain.
+- Items that password managers mark as concealed or transient (the [nspasteboard.org](http://nspasteboard.org) conventions `org.nspasteboard.ConcealedType`, `org.nspasteboard.TransientType` and `org.nspasteboard.AutoGeneratedType`) are never recorded.
+- To wipe your history, use **Clear All History…** (it also removes the copy migrated from older builds), or run:
+  ```bash
+  defaults delete com.theharisshah.ClipboardManager
+  defaults delete ClipboardManager   # history from builds before the .app, and from `swift run`
+  ```
+- **macOS 15.4+:** if macOS asks whether Clipboard Manager may paste from other apps, choose **Allow**. You can change this later in **System Settings › Privacy & Security › Paste from Other Apps**. If access is denied, the popover shows a notice.
+
+## Running Tests
+
+```bash
+./test.sh
+```
+
+Extra arguments are passed to `swift test` (for example `./test.sh --filter SomeTest`). With full Xcode 16+ installed, plain `swift test` also works. The tests don't launch the app or touch your clipboard or saved history.
 
 ## Customization
 
-You can modify the following aspects of the application:
+- **Maximum number of items:** the `maxItems` parameter of `ClipboardManager`'s initializer (default 100)
+- **Polling interval:** the timer in `startMonitoring()`
+- **UI appearance:** the SwiftUI views in `ContentView.swift`
 
-- Maximum number of items to store: Edit the `maxItems` property in `ClipboardManager.swift`
-- Clipboard check frequency: Modify the timer interval in `startMonitoring()` method
-- UI appearance: Customize the SwiftUI views in `ContentView.swift`
+## Project Structure
+
+```
+ClipboardManager/
+├── ClipboardManager.swift     # Model, type detection, monitoring & persistence
+├── PopoverModel.swift         # Popover state & keyboard handling
+├── ContentView.swift          # SwiftUI UI
+├── ClipboardManagerApp.swift  # App delegate, status item, popover, menu
+├── HotkeyManager.swift        # Global hotkey (⇧⌘V)
+└── Info.plist                 # Bundle metadata used by build.sh
+Tests/                         # Unit tests (Swift Testing)
+build.sh                       # Builds dist/ClipboardManager.app
+test.sh                        # Runs the tests
+```
 
 ## License
 

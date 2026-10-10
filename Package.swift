@@ -15,10 +15,7 @@ let package = Package(
             name: "ClipboardManager",
             dependencies: [],
             path: "ClipboardManager",
-            exclude: ["Info.plist"],
-            resources: [
-                .process("Resources")
-            ]
+            exclude: ["Info.plist"]
         ),
         .testTarget(
             name: "ClipboardManagerTests",
